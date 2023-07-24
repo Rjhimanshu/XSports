@@ -1,0 +1,237 @@
+{% include "header.html" %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <style>
+      /* Cart page styles */
+
+.cart-container {
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.quantity {
+  display: flex;
+  align-items: center;
+}
+
+.quantity-btn {
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  margin: 0 5px;
+}
+
+.quantity-value {
+  margin: 0 10px;
+  font-weight: bold;
+}
+
+.remove-btn {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cart-total {
+  margin-top: 20px;
+  text-align: right;
+}
+
+/* Responsive styles */
+
+@media (max-width: 767px) {
+  th, td {
+    padding: 5px;
+  }
+
+  .quantity-btn {
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+  }
+
+  .quantity-value {
+    margin: 0 5px;
+    font-size: 12px;
+  }
+
+  .remove-btn {
+    padding: 3px 8px;
+  }
+}
+.cart-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 18px;
+}
+
+    </style>
+  </head>
+
+<body>
+  {% if 'email' in session %}
+  <div class="jumbotron">
+    <h4 class="display-4 text-center"> Cart </h4>
+</div>
+<div class="container">
+
+<div class="card-container">
+  
+  <div class="cart-container">
+    {% if cart %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Product</th>
+            <th scope="col">Price</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Total</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in cart %}
+            <tr>
+              <td>{{ item['product_name'] }}</td>
+              <td>${{ item['price'] }}</td>
+              <td>
+                <div class="quantity">
+                  <button class="quantity-btn minus-btn" data-product-id="{{ item['id'] }}">-</button>
+                  <span class="quantity-value">{{ item['quantity'] }}</span>
+                  <button class="quantity-btn plus-btn" data-product-id="{{ item['id'] }}">+</button>
+                </div>
+              </td>
+              <td class="item-total">${{ item['total_price'] }}</td>
+              <td>
+                <button class="remove-btn" data-product-id="{{ item['id'] }}">Remove</button>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="cart-total">
+        <p>Total: ${{ cart_total }}</p>
+        
+        <!-- Button to redirect to the payment page -->
+        <a href="/address" class="btn cart-btn">Proceed to Payment</a>
+        <!-- <button class="cart-btn" onclick="redirectToPayment()">Proceed to Payment</button> -->
+
+      </div>
+    {% else %}
+      <h1>Your cart is empty.</h1>
+      <p>Add some products to your cart!</p>
+    <a href="/products">Back to Products</a>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+  <script>
+    const quantityButtons = document.querySelectorAll('.quantity-btn');
+    const removeButtons = document.querySelectorAll('.remove-btn');
+
+    // Handle quantity increase/decrease buttons
+    quantityButtons.forEach(function(button) {
+      button.addEventListener('click', function() {
+        const productId = this.dataset.productId;
+        const action = this.innerText === '+' ? 'increase' : 'decrease';
+        updateQuantity(productId, action);
+      });
+    });
+
+    // Handle remove buttons
+    removeButtons.forEach(function(button) {
+      button.addEventListener('click', function() {
+        const productId = this.dataset.productId;
+        removeFromCart(productId);
+      });
+    });
+
+    function updateQuantity(productId, action) {
+      console.log('Updating quantity for product:', productId, 'Action:', action);
+      fetch(`/update_quantity/${productId}/${action}`, {
+        method: 'POST'
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Handle success or error message
+        if (data.success) {
+          // Quantity updated successfully
+          window.location.reload();  // Refresh the cart page
+        } else {
+          // Error occurred
+          alert('Failed to update quantity.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the quantity.');
+      });
+    }
+
+    function removeFromCart(productId) {
+      console.log('Removing product from cart:', productId);
+      fetch(`/remove_from_cart/${productId}`, {
+        method: 'POST'
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Handle success or error message
+        if (data.success) {
+          // Product removed successfully
+          window.location.reload();  // Refresh the cart page
+        } else {
+          // Error occurred
+          alert('Failed to remove product from cart.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while removing the product from cart.');
+      });
+    }
+
+   
+  </script>
+  
+  </body>
+ 
+</html>
+{% include "footer.html" %}
+
+
+
+
+
+

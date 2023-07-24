@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment Page</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <!-- Your payment options buttons -->
+    <h3>Choose Payment Option:</h3>
+    <button class="btn btn-primary" id="cod-btn">Cash on Delivery</button>
+    <button class="btn btn-primary" id="online-btn">Online Payment</button>
+
+    <!-- Total amount and product details -->
+    <div id="product-details" style="display: none;">
+        <h4>Product Details:</h4>
+        <!-- Display the product and total amount information here -->
+        <!-- You can use JavaScript to populate this section dynamically -->
+        <div class="container">
+            <div class="row">
+                {% for item in cart %}
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Product Name: {{ item['name'] }}</h5>
+                            <p class="card-text">Quantity: {{ item['quantity'] }}</p>
+                            <p class="card-text">Total Price: ${{ item['price'] | float * item['quantity'] | round(2) }}</p>
+                        </div>
+                    </div>
+                            
+                </div>
+
+                {% endfor %}
+            </div>
+
+        </div>
+                         <!-- Display the total price of all items -->
+                         <h4>Total Price: ${{ cart_total }}</h4>
+    </div>
+
+    <!-- Place Order Button -->
+    <button class="btn btn-success" id="place-order-btn" style="display: none;">Place Order</button>
+
+    <!-- Flash Message -->
+    <div id="flash-message" style="display: none;">
+        <div class="alert alert-success" role="alert">
+            Thank You! Your order has been placed. It will reach you soon.
+        </div>
+    </div>
+
+    <!-- Include Bootstrap JS and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        // Event listener for Cash on Delivery button
+        document.getElementById("cod-btn").addEventListener("click", function() {
+            showProductDetails();
+        });
+
+        // Event listener for Online Payment button
+        document.getElementById("online-btn").addEventListener("click", function() {
+            showProductDetails();
+        });
+
+        // Event listener for Place Order button
+        document.getElementById("place-order-btn").addEventListener("click", function() {
+            submitOrder();
+        });
+
+        function showProductDetails() {
+            // Display the product details section
+            document.getElementById("product-details").style.display = "block";
+
+            // Display the Place Order button
+            document.getElementById("place-order-btn").style.display = "block";
+        }
+
+        function submitOrder() {
+            // Here, you can use JavaScript to submit the order details to the server via a form or AJAX
+
+            // For demonstration purposes, we show the flash message and redirect to payment success page
+            document.getElementById("flash-message").style.display = "block";
+            setTimeout(function() {
+                window.location.href = "/payment_success"; // Redirect to payment success page after a delay
+            }, 3000); // Delay in milliseconds (3 seconds in this case)
+        }
+    </script>
+</body>
+</html>
