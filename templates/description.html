@@ -75,6 +75,7 @@
     </head>
 <body>
     {% include "header.html" %}
+    <div class="container">
     <div class="product-container">
         <div class="product-image">
           <img src="{{ product.image_url }}" alt="{{ product.name }}">
@@ -87,6 +88,8 @@
           <a class="back-btn" href="{{ '/cart' }}">Go to Cart</a>
         </div>
       </div>
-      {% include "footer.html" %}
+    </div>
+      <div style="height: 220px;"></div>
 </body>
 </html>
+{% include "footer.html" %}

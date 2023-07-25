@@ -123,7 +123,7 @@ tr:nth-child(even) {
         <tbody>
           {% for item in cart %}
             <tr>
-              <td>{{ item['product_name'] }}</td>
+              <td>{{ item['name'] }}</td>
               <td>${{ item['price'] }}</td>
               <td>
                 <div class="quantity">
@@ -132,7 +132,7 @@ tr:nth-child(even) {
                   <button class="quantity-btn plus-btn" data-product-id="{{ item['id'] }}">+</button>
                 </div>
               </td>
-              <td class="item-total">${{ item['total_price'] }}</td>
+              <td class="item-total">${{ (item['price'] | float * item['quantity']) | round(2) }}</td>
               <td>
                 <button class="remove-btn" data-product-id="{{ item['id'] }}">Remove</button>
               </td>
@@ -152,83 +152,109 @@ tr:nth-child(even) {
       <h1>Your cart is empty.</h1>
       <p>Add some products to your cart!</p>
     <a href="/products">Back to Products</a>
+    <div style="height: 150px;"></div>
     {% endif %}
   </div>
 </div>
+
 {% endif %}
+<!-- cart.html -->
 
-  <script>
-    const quantityButtons = document.querySelectorAll('.quantity-btn');
-    const removeButtons = document.querySelectorAll('.remove-btn');
-
-    // Handle quantity increase/decrease buttons
-    quantityButtons.forEach(function(button) {
-      button.addEventListener('click', function() {
-        const productId = this.dataset.productId;
-        const action = this.innerText === '+' ? 'increase' : 'decrease';
-        updateQuantity(productId, action);
-      });
+<script>
+  // Event listener for quantity increase buttons
+  const plusButtons = document.querySelectorAll('.plus-btn');
+  plusButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      const productId = this.dataset.productId;
+      updateQuantity(productId, 'increase');
     });
+  });
 
-    // Handle remove buttons
-    removeButtons.forEach(function(button) {
-      button.addEventListener('click', function() {
-        const productId = this.dataset.productId;
-        removeFromCart(productId);
-      });
+  // Event listener for quantity decrease buttons
+  const minusButtons = document.querySelectorAll('.minus-btn');
+  minusButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      const productId = this.dataset.productId;
+      updateQuantity(productId, 'decrease');
     });
+  });
 
-    function updateQuantity(productId, action) {
-      console.log('Updating quantity for product:', productId, 'Action:', action);
-      fetch(`/update_quantity/${productId}/${action}`, {
-        method: 'POST'
-      })
-      .then(response => response.json())
+  // Event listener for remove buttons
+  const removeButtons = document.querySelectorAll('.remove-btn');
+  removeButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      const productId = this.dataset.productId;
+      removeFromCart(productId);
+    });
+  });
+
+  function updateQuantity(productId, action) {
+    console.log('Updating quantity for product:', productId, 'Action:', action);
+    fetch(`/update_quantity/${productId}/${action}`, {
+      method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Handle success or error message
+      if (data.success) {
+        // Quantity updated successfully
+        window.location.reload();
+        updateCartDisplay();
+         // Fetch updated cart details and update cart display
+      } else {
+        // Error occurred
+        alert('Failed to update quantity.');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred while updating the quantity.');
+    });
+  }
+
+  function removeFromCart(productId) {
+    console.log('Removing product from cart:', productId);
+    fetch(`/remove_from_cart/${productId}`, {
+      method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Handle success or error message
+      if (data.success) {
+        // Product removed successfully
+        window.location.reload();
+        updateCartDisplay(); // Fetch updated cart details and update cart display
+        
+      } else {
+        // Error occurred
+        alert('Failed to remove product from cart.');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred while removing the product from cart.');
+    });
+  }
+
+  function updateCartDisplay() {
+    // Fetch the updated cart details from the server using AJAX
+    fetch('/cart')
+      .then(response => response.text())
       .then(data => {
-        // Handle success or error message
-        if (data.success) {
-          // Quantity updated successfully
-          window.location.reload();  // Refresh the cart page
-        } else {
-          // Error occurred
-          alert('Failed to update quantity.');
-        }
+        // Update the cart section on the page with the updated cart details
+        const cartContainer = document.querySelector('.cart-container');
+        cartContainer.innerHTML = data;
       })
       .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred while updating the quantity.');
+        alert('An error occurred while fetching the updated cart details.');
       });
-    }
-
-    function removeFromCart(productId) {
-      console.log('Removing product from cart:', productId);
-      fetch(`/remove_from_cart/${productId}`, {
-        method: 'POST'
-      })
-      .then(response => response.json())
-      .then(data => {
-        // Handle success or error message
-        if (data.success) {
-          // Product removed successfully
-          window.location.reload();  // Refresh the cart page
-        } else {
-          // Error occurred
-          alert('Failed to remove product from cart.');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while removing the product from cart.');
-      });
-    }
-
-   
-  </script>
-  
+  }
+</script>
   </body>
- 
+  {% include "footer.html" %}
+
 </html>
-{% include "footer.html" %}
 
 
 

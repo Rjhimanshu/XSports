@@ -4,50 +4,87 @@
     <title>Payment Page</title>
     <!-- Include Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+
+        /* Set a top margin for the buttons */
+.btn-primary {
+    margin-top: 10px;
+}
+
+/* Center the buttons */
+.text-center {
+    text-align: center;
+}
+
+/* Add some space between the product cards */
+.card {
+    margin-bottom: 10px;
+}
+
+/* Center the flash message */
+.alert-success {
+    margin-top: 20px;
+}
+    </style>
 </head>
 <body>
-    <!-- Your payment options buttons -->
-    <h3>Choose Payment Option:</h3>
-    <button class="btn btn-primary" id="cod-btn">Cash on Delivery</button>
-    <button class="btn btn-primary" id="online-btn">Online Payment</button>
-
-    <!-- Total amount and product details -->
-    <div id="product-details" style="display: none;">
-        <h4>Product Details:</h4>
-        <!-- Display the product and total amount information here -->
-        <!-- You can use JavaScript to populate this section dynamically -->
-        <div class="container">
-            <div class="row">
-                {% for item in cart %}
-                <div class="col-md-4">
-                    <div class="card mb-4">
+    <div class="container">
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-6">
+                <!-- Your payment options buttons -->
+                <h3 class="text-center">Choose Payment Option:</h3>
+                <div class="text-center">
+                    <button class="btn btn-primary mr-3" id="cod-btn">Cash on Delivery</button>
+                    <button class="btn btn-primary" id="online-btn">Online Payment</button>
+                </div>
+            </div>
+        </div>
+        <div style="height: 50px;"></div>
+        
+        <!-- Total amount and product details -->
+        <div id="product-details" style="display: none;">
+            <div class="row justify-content-center mt-4">
+                <div class="col-md-6">
+                    <h4 class="text-center mb-3">Product Details:</h4>
+                    <!-- Display the product and total amount information here -->
+                    <!-- You can use JavaScript to populate this section dynamically -->
+                    {% for item in cart %}
+                    <div class="card mb-3">
                         <div class="card-body">
                             <h5 class="card-title">Product Name: {{ item['name'] }}</h5>
                             <p class="card-text">Quantity: {{ item['quantity'] }}</p>
                             <p class="card-text">Total Price: ${{ item['price'] | float * item['quantity'] | round(2) }}</p>
                         </div>
                     </div>
-                            
+                    {% endfor %}
                 </div>
-
-                {% endfor %}
             </div>
 
+            <!-- Display the total price of all items -->
+            <div class="row justify-content-center mt-3">
+                <div class="col-md-6">
+                    <h4 class="text-center">Total Price: ${{ cart_total }}</h4>
+                </div>
+            </div>
         </div>
-                         <!-- Display the total price of all items -->
-                         <h4>Total Price: ${{ cart_total }}</h4>
-    </div>
 
-    <!-- Place Order Button -->
-    <button class="btn btn-success" id="place-order-btn" style="display: none;">Place Order</button>
-
-    <!-- Flash Message -->
-    <div id="flash-message" style="display: none;">
-        <div class="alert alert-success" role="alert">
-            Thank You! Your order has been placed. It will reach you soon.
+        <!-- Place Order Button -->
+        <form method="POST" action="/payment">
+            <div class="row justify-content-center mt-3">
+                <div class="col-md-6 text-center">
+                    <button class="btn btn-success" id="place-order-btn" style="display: none;">Place Order</button>
+                </div>
+            </div>
+        </form>
+        <div style="height: 50px;"></div>
+        <!-- Flash Message -->
+        <div id="flash-message" style="display: none;">
+            <div class="alert alert-success text-center mt-3" role="alert">
+                Thank You! Your order has been placed. It will reach you soon.
+            </div>
         </div>
     </div>
-
+    <div style="height: 50px;"></div>
     <!-- Include Bootstrap JS and jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
@@ -87,5 +124,6 @@
             }, 3000); // Delay in milliseconds (3 seconds in this case)
         }
     </script>
+{% include "footer.html" %}
 </body>
 </html>
