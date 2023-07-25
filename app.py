@@ -186,46 +186,6 @@ def add_to_cart(product_id, quantity):
         return {'success': False}
 
 
-'''
-# Add to Cart
-@app.route('/add_to_cart/<int:product_id>/<int:quantity>', methods=['POST'])
-def add_to_cart(product_id, quantity):
-   # Convert product_id to string before storing in session
-    product_id_str = str(product_id)
-    
-    # Connect to Azure MySQL Database
-    conn = mysql.connector.connect(**product_management_config)
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute('SELECT * FROM products WHERE id = %s', (product_id,))
-    product = cursor.fetchone()
-    conn.close()
-    
-    cart = session.get('cart', [])
-
-    if product:
-        item = {
-            'id': product_id_str,
-            'name': product['name'],
-            'price': product['price'],
-            'quantity': quantity
-        }
-      
-
-        # Retrieve the cart from the session or initialize it if empty
-        cart = session.get('cart', [])
-        cart.append(item)
-
-
-        # Update the cart in the session
-        session['cart'] = cart
-  
-        flash('Product added to cart successfully!', 'success')
-        return {'success': True}
-    else:
-        flash('Product not found!', 'error')
-        return {'sucess': False}
- '''
-
 # Update Quantity
 @app.route('/update_quantity/<int:product_id>/<action>', methods=['POST'])
 def update_quantity(product_id, action):
@@ -314,8 +274,7 @@ def address():
         zipcode = request.form['zipcode']
 
         # Get the user_id from the session
-        user_id = session.get('user_id')
-        print("User ID:", user_id) 
+        user_id = session.get('user_id') 
 
         if not user_id:
             flash('Please sign in to submit the address.', 'warning')
